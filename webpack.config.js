@@ -3,6 +3,7 @@ var fs = require('fs');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var CleanWebpackPlugin = require('clean-webpack-plugin');
 
 var assets = 'release/';
 var jsSrc = path.join(__dirname,'src');
@@ -39,6 +40,7 @@ module.exports = {
         chunkFilename: 'js/[name].[chunkhash:8].chunk.js',
         publicPath: './'
     },
+    devtool: 'inline-source-map',
     module: {
         rules: [
             {
@@ -58,9 +60,18 @@ module.exports = {
                         limit: 8192
                     }*/
                 }
+            },
+            {
+                test: require.resolve('zepto'),
+                loader: 'exports-loader?window.Zepto!script-loader'
             }
         ]
     },
+    /*resolve:{
+        alias:{ //路径需要用 path.resolve 处理下
+            "zepto": path.resolve(__dirname,"node_modules/zepto/dist/zepto.min.js"),
+        }
+    },*/
     optimization: {
         minimize: false,
         runtimeChunk: {
@@ -84,6 +95,10 @@ module.exports = {
                 return getPath('css/[contenthash:8].[name].min.css').replace('css/js', 'css')
             },
             allChunks: false
+        }),
+        new CleanWebpackPlugin(['release']),
+        new webpack.ProvidePlugin({
+            $: "zepto",
         })
     ]
 };
